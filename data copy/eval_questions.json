@@ -1,0 +1,50 @@
+[
+  {
+    "question": "What are the GDPR data breach notification requirements for data controllers?",
+    "ground_truth": "Under GDPR Article 33, data controllers must notify the supervisory authority without undue delay and, where feasible, within 72 hours of becoming aware of a personal data breach. The notification must include: the nature of the breach, categories and numbers of data subjects and records affected, contact details of the DPO, likely consequences, and measures taken or proposed. If notification cannot be made within 72 hours, reasons for delay must be provided. Under Article 34, when the breach is likely to result in high risk to individuals, the affected data subjects must also be notified without undue delay.",
+    "relevant_articles": ["gdpr_art_33", "gdpr_art_34"],
+    "regulation": "gdpr"
+  },
+  {
+    "question": "How does CCPA's right to deletion compare to GDPR's right to erasure?",
+    "ground_truth": "Both CCPA Section 1798.105 and GDPR Article 17 grant individuals the right to request deletion of their personal data. GDPR's right to erasure is broader: it applies to EU residents and covers data that is no longer necessary, processed on the basis of consent that was withdrawn, processed unlawfully, or must be erased for legal compliance. CCPA's right to deletion applies to California consumers and applies to personal information collected by businesses, with exceptions for completing transactions, detecting security incidents, complying with legal obligations, and exercising free speech. GDPR requires erasure from third parties to whom data was disclosed; CCPA requires the business to direct service providers to delete the data as well.",
+    "relevant_articles": ["gdpr_art_17", "ccpa_1798_105"],
+    "regulation": null
+  },
+  {
+    "question": "What obligations do GDPR data processors have regarding security?",
+    "ground_truth": "Under GDPR Article 28, processors must only process data on documented instructions from the controller, ensure persons authorized to process data are committed to confidentiality, implement appropriate technical and organizational security measures per Article 32, assist the controller with security obligations, delete or return all data after services end, and provide necessary information to demonstrate compliance. Article 32 requires implementing measures appropriate to the risk, including pseudonymization and encryption, ensuring ongoing confidentiality, integrity, availability and resilience, ability to restore data after incidents, and regular testing of security measures.",
+    "relevant_articles": ["gdpr_art_28", "gdpr_art_32"],
+    "regulation": "gdpr"
+  },
+  {
+    "question": "What are the HIPAA minimum necessary standard requirements?",
+    "ground_truth": "The HIPAA minimum necessary standard (45 CFR 164.502(b) and 164.514(d)) requires covered entities to make reasonable efforts to limit the use, disclosure, and requests for protected health information (PHI) to the minimum necessary to accomplish the intended purpose. Covered entities must identify persons or classes of persons who need PHI, define the conditions under which they need access, and implement policies limiting PHI access. Exceptions include disclosures to the individual themselves, disclosures for treatment purposes, uses or disclosures required by HHS for compliance investigations, and uses or disclosures required by law.",
+    "relevant_articles": ["hipaa_164_502", "hipaa_164_514"],
+    "regulation": "hipaa"
+  },
+  {
+    "question": "What consent requirements does GDPR impose on data controllers?",
+    "ground_truth": "GDPR Article 7 establishes strict conditions for consent as a lawful basis for processing. Controllers must be able to demonstrate consent was given. Consent requests must be presented in a clearly distinguishable manner, in plain language. Data subjects have the right to withdraw consent at any time, and withdrawal must be as easy as giving consent. Consent cannot be a condition of a service contract. Article 4(11) defines valid consent as freely given, specific, informed, and unambiguous indication of the data subject's wishes, by a statement or clear affirmative action. Article 8 sets the age of digital consent at 16 (or 13-16 depending on member state law) for information society services.",
+    "relevant_articles": ["gdpr_art_4", "gdpr_art_7", "gdpr_art_8"],
+    "regulation": "gdpr"
+  },
+  {
+    "question": "What rights do California consumers have under CCPA regarding their data?",
+    "ground_truth": "Under CCPA, California consumers have the right to know what personal information is collected about them (categories and specific pieces), the right to know if personal information is sold or disclosed and to whom, the right to opt-out of the sale of personal information, the right to deletion of personal information (with exceptions), the right to non-discrimination for exercising CCPA rights, and (under CPRA amendments) the right to correct inaccurate personal information and the right to limit the use and disclosure of sensitive personal information.",
+    "relevant_articles": ["ccpa_1798_100", "ccpa_1798_105", "ccpa_1798_110", "ccpa_1798_120"],
+    "regulation": "ccpa"
+  },
+  {
+    "question": "What are the GDPR lawful bases for processing personal data?",
+    "ground_truth": "GDPR Article 6 establishes six lawful bases for processing personal data: (a) Consent — the data subject has given explicit consent; (b) Contract — processing is necessary for performance of a contract with the data subject; (c) Legal obligation — processing is necessary for compliance with a legal obligation; (d) Vital interests — processing is necessary to protect someone's life; (e) Public task — processing is necessary for a task carried out in the public interest or official authority; (f) Legitimate interests — processing is necessary for legitimate interests pursued by the controller or a third party, unless overridden by the data subject's interests or rights.",
+    "relevant_articles": ["gdpr_art_6"],
+    "regulation": "gdpr"
+  },
+  {
+    "question": "How do GDPR and CCPA differ in their definitions of personal data/personal information?",
+    "ground_truth": "GDPR Article 4(1) defines personal data broadly as any information relating to an identified or identifiable natural person ('data subject'), including names, ID numbers, location data, online identifiers, and factors specific to physical, physiological, genetic, mental, economic, cultural, or social identity. CCPA Section 1798.140(o) defines personal information as information that identifies, relates to, describes, is reasonably capable of being associated with, or could reasonably be linked, directly or indirectly, with a particular consumer or household. Key differences: CCPA explicitly includes household-level data and has specific categories including geolocation, biometric, and inferences; GDPR's definition is narrower (natural persons only, not households) but includes special categories of sensitive data under Article 9 with stricter protections.",
+    "relevant_articles": ["gdpr_art_4", "ccpa_1798_140"],
+    "regulation": null
+  }
+]
