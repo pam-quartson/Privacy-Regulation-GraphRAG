@@ -47,19 +47,30 @@ class RegulationChunk:
 
 # ─── Article Patterns ─────────────────────────────────────────────────────────
 
-# Regex patterns to detect article headers in different regulations
+# Regex patterns to detect article headers in different regulations.
+#
+# GDPR requires a newline directly after the article number before the
+# title text: this avoids matching inline cross-references like "...point
+# (a) of Article 6(1), or point (a) of Article 9(2)..." (no newline follows
+# the number there), which is common since GDPR source text is extracted
+# from nested <li> lists where each bullet becomes its own pseudo-line.
+#
+# CCPA/HIPAA instead anchor to the start of a line (re.MULTILINE): their
+# titles sit inline right after the number ("Section 1798.130 Notice..."),
+# so the newline trick doesn't apply, and their source text doesn't have
+# GDPR's nested-list-per-line issue that would make the anchor misfire.
 ARTICLE_PATTERNS = {
     "gdpr": re.compile(
         r"Article\s+(\d+(?:\(\d+\))?(?:\([a-z]\))?)\s*[\n\r]+([^\n\r]{5,120})",
         re.IGNORECASE
     ),
     "ccpa": re.compile(
-        r"(?:Section|§)\s*(1798\.\d+(?:\.\d+)?)\s*[\.\-]?\s*([^\n\r]{5,120})",
-        re.IGNORECASE
+        r"^(?:Section|§)\s*(1798\.\d+(?:\.\d+)?)\s*[\.\-]?\s*([^\n\r]{5,120})",
+        re.IGNORECASE | re.MULTILINE
     ),
     "hipaa": re.compile(
-        r"§\s*(164\.\d+)\s*([^\n\r]{5,120})",
-        re.IGNORECASE
+        r"^§\s*(164\.\d+)\s*([^\n\r]{5,120})",
+        re.IGNORECASE | re.MULTILINE
     ),
 }
 
@@ -209,4 +220,8 @@ class RegulationDocumentLoader:
     @staticmethod
     def _make_id(regulation: str, article_number: str, chunk_index: int) -> str:
         safe_num = re.sub(r"[^a-z0-9]", "_", article_number.lower())
-        return f"{regulation}_art_{safe_num}_c{chunk_index}"
+        # Only GDPR cites by "Article"; CCPA/HIPAA cite by Section/§, so their
+        # chunk ids omit the "art" infix to match eval_questions.json's
+        # relevant_articles naming (e.g. "ccpa_1798_105", "hipaa_164_502").
+        infix = "art_" if regulation == "gdpr" else ""
+        return f"{regulation}_{infix}{safe_num}_c{chunk_index}"

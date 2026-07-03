@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, type ChangeEvent, type KeyboardEvent, type MouseEvent } from "react";
 
 const API_BASE = "http://localhost:8000";
 
@@ -17,10 +17,45 @@ const REGULATIONS = [
   { value: "hipaa", label: "HIPAA" },
 ];
 
-function SourceBadge({ source }) {
-  const isHybrid = source?.includes("+");
-  const isGraph = source?.includes("graph");
-  const isVector = source?.includes("vector") && !isHybrid;
+// ─── API response types (mirrors src/api/models.py) ──────────────────────────
+
+interface CitationData {
+  regulation: string | null;
+  article: string | null;
+  title: string | null;
+  source: string | null; // e.g. "vector(#1) + graph(#2)"
+  chunk_id: string | null;
+}
+
+interface RetrievalStats {
+  vector_results: number;
+  graph_results: number;
+  fused_results: number;
+  latency_ms: number;
+}
+
+interface TraceItem {
+  regulation?: string;
+  article?: string;
+  title?: string;
+  score?: number;
+  source?: string;
+  preview?: string;
+}
+
+interface QueryResponse {
+  query: string;
+  answer: string;
+  citations: CitationData[];
+  retrieval_stats: RetrievalStats;
+  retrieval_trace?: TraceItem[] | null;
+}
+
+// ─── Small presentational components ─────────────────────────────────────────
+
+function SourceBadge({ source }: { source?: string | null }) {
+  const isHybrid = source?.includes("+") ?? false;
+  const isGraph = source?.includes("graph") ?? false;
   return (
     <span
       style={{
@@ -40,7 +75,7 @@ function SourceBadge({ source }) {
   );
 }
 
-function Citation({ citation, index }) {
+function Citation({ citation, index }: { citation: CitationData; index: number }) {
   return (
     <div
       style={{
@@ -92,7 +127,7 @@ function Citation({ citation, index }) {
   );
 }
 
-function RetrievalTrace({ trace }) {
+function RetrievalTrace({ trace }: { trace?: TraceItem[] | null }) {
   const [open, setOpen] = useState(false);
   if (!trace?.length) return null;
   return (
@@ -145,7 +180,7 @@ function RetrievalTrace({ trace }) {
   );
 }
 
-function StatsBar({ stats }) {
+function StatsBar({ stats }: { stats?: RetrievalStats | null }) {
   if (!stats) return null;
   return (
     <div
@@ -184,9 +219,9 @@ export default function App() {
   const [regulation, setRegulation] = useState("");
   const [showTrace, setShowTrace] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [response, setResponse] = useState(null);
-  const [error, setError] = useState(null);
-  const textareaRef = useRef(null);
+  const [response, setResponse] = useState<QueryResponse | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -215,16 +250,16 @@ export default function App() {
         const err = await res.json();
         throw new Error(err.detail || "Query failed");
       }
-      const data = await res.json();
+      const data: QueryResponse = await res.json();
       setResponse(data);
     } catch (e) {
-      setError(e.message);
+      setError(e instanceof Error ? e.message : "Query failed");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) handleQuery();
   };
 
@@ -299,7 +334,7 @@ export default function App() {
           </h1>
           <p style={{ color: "#475569", fontSize: "15px", lineHeight: 1.6, margin: 0, maxWidth: "520px" }}>
             Hybrid retrieval combining <span style={{ color: "#c084fc" }}>semantic vector search</span> and{" "}
-            <span style={{ color: "#60a5fa" }}>knowledge graph traversal</span> — +21% accuracy over baseline RAG.
+            <span style={{ color: "#60a5fa" }}>knowledge graph traversal</span>, running entirely on local infrastructure.
           </p>
         </div>
 
@@ -316,7 +351,7 @@ export default function App() {
           <textarea
             ref={textareaRef}
             value={question}
-            onChange={(e) => setQuestion(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setQuestion(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="e.g. What are GDPR's breach notification requirements for data controllers?"
             rows={2}
@@ -347,7 +382,7 @@ export default function App() {
             <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
               <select
                 value={regulation}
-                onChange={(e) => setRegulation(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLSelectElement>) => setRegulation(e.target.value)}
                 style={{
                   background: "#0d1a0d",
                   border: "1px solid #1e2d1e",
@@ -377,7 +412,7 @@ export default function App() {
                 <input
                   type="checkbox"
                   checked={showTrace}
-                  onChange={(e) => setShowTrace(e.target.checked)}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setShowTrace(e.target.checked)}
                   style={{ accentColor: "#22c55e" }}
                 />
                 Show retrieval trace
@@ -440,13 +475,13 @@ export default function App() {
                   textOverflow: "ellipsis",
                   whiteSpace: "nowrap",
                 }}
-                onMouseEnter={(e) => {
-                  e.target.style.borderColor = "#22c55e44";
-                  e.target.style.color = "#94a3b8";
+                onMouseEnter={(e: MouseEvent<HTMLButtonElement>) => {
+                  e.currentTarget.style.borderColor = "#22c55e44";
+                  e.currentTarget.style.color = "#94a3b8";
                 }}
-                onMouseLeave={(e) => {
-                  e.target.style.borderColor = "#1a271a";
-                  e.target.style.color = "#64748b";
+                onMouseLeave={(e: MouseEvent<HTMLButtonElement>) => {
+                  e.currentTarget.style.borderColor = "#1a271a";
+                  e.currentTarget.style.color = "#64748b";
                 }}
               >
                 {q}
@@ -542,7 +577,7 @@ export default function App() {
               { label: "LangChain", color: "#4ade80" },
               { label: "ChromaDB", color: "#c084fc" },
               { label: "Memgraph", color: "#60a5fa" },
-              { label: "GPT-4o", color: "#fbbf24" },
+              { label: "Ollama", color: "#fbbf24" },
             ].map((t) => (
               <span
                 key={t.label}
@@ -569,7 +604,7 @@ export default function App() {
         @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
         * { box-sizing: border-box; }
         textarea::placeholder { color: #2d3f2d; }
-        ::-webkit-scrollbar { width: 6px; } 
+        ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #080c08; }
         ::-webkit-scrollbar-thumb { background: #1e2d1e; border-radius: 3px; }
       `}</style>

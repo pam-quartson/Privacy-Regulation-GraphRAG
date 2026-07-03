@@ -14,7 +14,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Optional
 
-from langchain_openai import ChatOpenAI
+from langchain_ollama import ChatOllama
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.documents import Document
 
@@ -96,7 +96,7 @@ class GraphRAGChain:
         self,
         vector_store: VectorStore,
         graph_store: GraphStore,
-        model_name: str = "gpt-4o",
+        model_name: str = "llama3.1:8b",
         top_k_vector: int = 5,
         top_k_graph: int = 5,
         rrf_k: int = 60,
@@ -109,7 +109,7 @@ class GraphRAGChain:
         self.top_k_vector = top_k_vector
         self.top_k_graph = top_k_graph
 
-        self.llm = ChatOpenAI(model=model_name, temperature=temperature)
+        self.llm = ChatOllama(model=model_name, temperature=temperature)
         logger.info(f"GraphRAGChain initialized: model={model_name}, "
                     f"top_k_vector={top_k_vector}, top_k_graph={top_k_graph}")
 

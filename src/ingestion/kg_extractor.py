@@ -2,7 +2,7 @@
 ingestion/kg_extractor.py
 
 Zero-shot knowledge graph extraction from regulation text chunks.
-Uses an LLM (GPT-4o) with a structured JSON prompt to extract:
+Uses a local LLM (via Ollama) with a structured JSON prompt to extract:
   - Articles, Obligations, Rights, Parties, Concepts
   - Relationships between them
 
@@ -15,7 +15,7 @@ import re
 import logging
 from typing import Any
 
-from langchain_openai import ChatOpenAI
+from langchain_ollama import ChatOllama
 from langchain_core.messages import SystemMessage, HumanMessage
 from tenacity import retry, stop_after_attempt, wait_exponential
 
@@ -118,13 +118,13 @@ class KGExtractor:
     """
     Zero-shot knowledge graph extractor.
 
-    For each regulation chunk, calls GPT-4o to extract structured
+    For each regulation chunk, calls a local LLM to extract structured
     entities and relationships, then converts them to typed dataclasses
     compatible with Memgraph ingestion.
     """
 
-    def __init__(self, model_name: str = "gpt-4o", temperature: float = 0.0):
-        self.llm = ChatOpenAI(model=model_name, temperature=temperature)
+    def __init__(self, model_name: str = "llama3.1:8b", temperature: float = 0.0):
+        self.llm = ChatOllama(model=model_name, temperature=temperature, format="json")
         self._party_cache: dict[str, PartyNode] = {}  # Deduplicate parties across chunks
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(min=1, max=10))

@@ -15,6 +15,9 @@ import logging
 import os
 from contextlib import asynccontextmanager
 
+from dotenv import load_dotenv
+load_dotenv()
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -51,7 +54,7 @@ async def lifespan(app: FastAPI):
     # Vector store
     state.vector_store = VectorStore(
         collection_name=os.getenv("CHROMA_COLLECTION", "privacy_regulations"),
-        embedding_model=os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small"),
+        embedding_model=os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2"),
         chroma_host=os.getenv("CHROMA_HOST") or None,
         chroma_port=int(os.getenv("CHROMA_PORT", "8001")),
     )
@@ -68,7 +71,7 @@ async def lifespan(app: FastAPI):
     state.chain = GraphRAGChain(
         vector_store=state.vector_store,
         graph_store=state.graph_store,
-        model_name=os.getenv("OPENAI_CHAT_MODEL", "gpt-4o"),
+        model_name=os.getenv("OLLAMA_MODEL", "llama3.1:8b"),
         top_k_vector=int(os.getenv("TOP_K_VECTOR", "5")),
         top_k_graph=int(os.getenv("TOP_K_GRAPH", "5")),
         rrf_k=int(os.getenv("RRF_K", "60")),
@@ -77,7 +80,7 @@ async def lifespan(app: FastAPI):
 
     # Ingestion pipeline
     kg_extractor = KGExtractor(
-        model_name=os.getenv("OPENAI_CHAT_MODEL", "gpt-4o")
+        model_name=os.getenv("OLLAMA_MODEL", "llama3.1:8b")
     )
     state.pipeline = IngestionPipeline(
         vector_store=state.vector_store,

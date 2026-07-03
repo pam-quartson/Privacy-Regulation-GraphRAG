@@ -12,20 +12,23 @@ from src.ingestion.document_loader import RegulationDocumentLoader, RegulationCh
 # ─── Document Loader Tests ────────────────────────────────────────────────────
 
 SAMPLE_GDPR_TEXT = """
-Article 1 - Subject-matter and objectives
+Article 1
+Subject-matter and objectives
 
 This Regulation lays down rules relating to the protection of natural persons with regard to the processing of personal data and rules relating to the free movement of personal data.
 
 This Regulation protects fundamental rights and freedoms of natural persons and in particular their right to the protection of personal data.
 
-Article 17 - Right to erasure ('right to be forgotten')
+Article 17
+Right to erasure ('right to be forgotten')
 
 The data subject shall have the right to obtain from the controller the erasure of personal data concerning him or her without undue delay and the controller shall have the obligation to erase personal data without undue delay where one of the following grounds applies:
 (a) the personal data are no longer necessary in relation to the purposes for which they were collected or otherwise processed;
 (b) the data subject withdraws consent on which the processing is based according to point (a) of Article 6(1), or point (a) of Article 9(2), and where there is no other legal ground for the processing;
 (c) the data subject objects to the processing pursuant to Article 21(1) and there are no overriding legitimate grounds for the processing.
 
-Article 33 - Notification of a personal data breach to the supervisory authority
+Article 33
+Notification of a personal data breach to the supervisory authority
 
 In the case of a personal data breach, the controller shall without undue delay and, where feasible, not later than 72 hours after having become aware of it, notify the personal data breach to the supervisory authority competent in accordance with Article 55.
 
@@ -94,6 +97,6 @@ Section 1798.105. (a) A consumer shall have the right to request that a business
         assert isinstance(chunks, list)
 
     def test_short_text_single_chunk(self):
-        text = "Article 1 - Title\nThis is a short article."
+        text = "Article 1\nTitle\nThis is a short article."
         chunks = self.loader.load_text(text, "gdpr")
         assert len(chunks) >= 1

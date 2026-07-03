@@ -46,17 +46,19 @@ def main():
     print("Initializing stores...")
     vector_store = VectorStore(
         collection_name=os.getenv("CHROMA_COLLECTION", "privacy_regulations"),
-        embedding_model=os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small"),
+        embedding_model=os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2"),
         chroma_host=os.getenv("CHROMA_HOST") or None,
     )
 
     graph_store = GraphStore(
         host=os.getenv("MEMGRAPH_HOST", "localhost"),
         port=int(os.getenv("MEMGRAPH_PORT", "7687")),
+        username=os.getenv("MEMGRAPH_USERNAME", ""),
+        password=os.getenv("MEMGRAPH_PASSWORD", ""),
     )
 
     kg_extractor = KGExtractor(
-        model_name=os.getenv("OPENAI_CHAT_MODEL", "gpt-4o")
+        model_name=os.getenv("OLLAMA_MODEL", "llama3.1:8b")
     )
 
     pipeline = IngestionPipeline(

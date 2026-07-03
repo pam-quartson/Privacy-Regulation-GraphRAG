@@ -37,8 +37,10 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from dotenv import load_dotenv
 load_dotenv()
 
+import os
+
 import numpy as np
-from langchain_openai import ChatOpenAI
+from langchain_ollama import ChatOllama
 from langchain_core.messages import SystemMessage, HumanMessage
 
 from src.retrieval.vector_store import VectorStore
@@ -68,9 +70,9 @@ Rate the system answer (return only JSON):"""
 
 
 def llm_judge_score(
-    question: str, ground_truth: str, answer: str, llm: ChatOpenAI
+    question: str, ground_truth: str, answer: str, llm: ChatOllama
 ) -> tuple[float, str]:
-    """Use GPT-4o to judge the quality of an answer (0.0 - 1.0)."""
+    """Use a local LLM to judge the quality of an answer (0.0 - 1.0)."""
     messages = [
         SystemMessage(content=JUDGE_SYSTEM),
         HumanMessage(content=JUDGE_PROMPT.format(
@@ -128,9 +130,9 @@ def compute_mrr(results_list: list[EvalResult]) -> float:
 class BaselineRAGChain:
     """Standard RAG: vector search only, no graph component."""
 
-    def __init__(self, vector_store: VectorStore, model_name: str = "gpt-4o"):
+    def __init__(self, vector_store: VectorStore, model_name: str = "llama3.1:8b"):
         self.vector_store = vector_store
-        self.llm = ChatOpenAI(model=model_name, temperature=0.1)
+        self.llm = ChatOllama(model=model_name, temperature=0.1)
 
     def query(self, question: str) -> dict:
         start = time.perf_counter()
@@ -156,9 +158,21 @@ def run_evaluation(questions_path: Path) -> None:
     load_dotenv()
 
     print("Initializing systems...")
-    vector_store = VectorStore()
-    graph_store = GraphStore()
-    judge_llm = ChatOpenAI(model="gpt-4o", temperature=0.0)
+    vector_store = VectorStore(
+        collection_name=os.getenv("CHROMA_COLLECTION", "privacy_regulations"),
+        embedding_model=os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-MiniLM-L6-v2"),
+        chroma_host=os.getenv("CHROMA_HOST") or None,
+        chroma_port=int(os.getenv("CHROMA_PORT", "8001")),
+    )
+    graph_store = GraphStore(
+        host=os.getenv("MEMGRAPH_HOST", "localhost"),
+        port=int(os.getenv("MEMGRAPH_PORT", "7687")),
+        username=os.getenv("MEMGRAPH_USERNAME", ""),
+        password=os.getenv("MEMGRAPH_PASSWORD", ""),
+    )
+    judge_llm = ChatOllama(
+        model=os.getenv("OLLAMA_MODEL", "llama3.1:8b"), temperature=0.0, format="json"
+    )
 
     graphrag = GraphRAGChain(vector_store=vector_store, graph_store=graph_store)
     baseline = BaselineRAGChain(vector_store=vector_store)

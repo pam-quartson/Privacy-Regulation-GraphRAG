@@ -2,7 +2,8 @@
 retrieval/vector_store.py
 
 ChromaDB-backed vector store for semantic similarity search over
-regulation chunks. Uses OpenAI text-embedding-3-small for dense embeddings.
+regulation chunks. Uses a local sentence-transformers model for dense
+embeddings (no external embeddings API required).
 """
 
 import logging
@@ -11,7 +12,7 @@ from typing import Optional
 import chromadb
 from chromadb.config import Settings
 from langchain_chroma import Chroma
-from langchain_openai import OpenAIEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.documents import Document
 
 logger = logging.getLogger(__name__)
@@ -30,15 +31,15 @@ class VectorStore:
     def __init__(
         self,
         collection_name: str = "privacy_regulations",
-        embedding_model: str = "text-embedding-3-small",
+        embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2",
         chroma_host: Optional[str] = None,
         chroma_port: int = 8001,
         persist_directory: str = "./chroma_db",
     ):
         self.collection_name = collection_name
 
-        # Embeddings
-        self.embeddings = OpenAIEmbeddings(model=embedding_model)
+        # Embeddings (runs locally, no API key needed)
+        self.embeddings = HuggingFaceEmbeddings(model_name=embedding_model)
 
         # Connect to ChromaDB — HTTP client if host provided, else local persistent
         if chroma_host:
